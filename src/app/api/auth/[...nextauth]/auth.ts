@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { env } from "@/env";
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
+// LEMBRAR DE COLOCAR O ENV NEXTAUTH_URL NO .ENV
 export const nextAuthOptions: AuthOptions = {
     session: {
         maxAge: 24 * 60 * 60
@@ -16,7 +18,7 @@ export const nextAuthOptions: AuthOptions = {
             },
 
             async authorize(credentials) {
-                const response = await fetch(env.NEXT_API_URL, {
+                const response = await fetch(`${env.NEXT_API_URL}/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -27,18 +29,18 @@ export const nextAuthOptions: AuthOptions = {
                     })
                 })
 
+                if (!response.ok) {
+                    return null
+                }
 
-                const user = response.json();
+                const user = await response.json();
 
                 return user;
             },
         })
     ],
-    pages: {
-        signIn: '/signin'
-    },
     callbacks: {
-        async jwt({ token, user }: { token: any, user?: any }) {
+        async jwt({ token, user }) {
             if (user) {
                 token.user = user;
             }
@@ -46,11 +48,7 @@ export const nextAuthOptions: AuthOptions = {
         },
         async session({ session, token }: { session: any, token: any }) {
             if (token.user) {
-                session.user = {
-                    CD_USUARIO: token.user.CD_USUARIO,
-                    NOME_USUARIO: token.user.NOME_USUARIO,
-                    SENHA: token.user.SENHA_USUARIO,
-                };
+                session.user = token.user;
             }
             return session;
         },

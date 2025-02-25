@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from 'next/font/google';
 import "./globals.css";
-import { getServerSession } from "next-auth";
-import { nextAuthOptions } from "@/auth/[...nextauth]/auth";
-import { redirect } from "next/navigation";
+import { Toaster } from "sonner";
 
 const poppins = Poppins({
   weight: '400',
@@ -22,17 +20,12 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  const session = await getServerSession(nextAuthOptions);
-
-  if (session) {
-    redirect('/painel')
-  }
-
   return (
     <html lang="en">
       <body
         className={`bg-slate-300 antialiased ${poppins.className}`}
       >
+        <Toaster />
         {children}
       </body>
     </html>

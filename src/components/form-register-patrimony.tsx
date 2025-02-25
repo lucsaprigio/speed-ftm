@@ -6,9 +6,10 @@ import { z } from "zod";
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from './ui/input';
 import { DatePicker } from './date-picker';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
+import { toast } from 'sonner';
 
 const registrationValidation = new RegExp(
     /^\d+$/
@@ -33,25 +34,33 @@ const registerSchema = z.object({
         }), // MATRICULA
     registrationDate: z.date().refine((date) => date <= new Date(), {
         message: 'A data não pode ser no futuro'
-    }),
+    }).default(new Date()),
     expandedDescription: z.string(), // DESCRICAO_EXPANDIDA
-    sector: z.number(),
-    userId: z.number(),
-    unit: z.number()
+    sector: z.number().optional().default(1),
+    userId: z.number().optional(),
+    unit: z.number().optional().default(1)
 });
 
-export type RegisterSchema = z.infer<typeof registerSchema>
+export type RegisterSchema = z.infer<typeof registerSchema>;
 
-export function FormRegisterPatrimony() {
+type FormRegisterProps = {
+    userId: number;
+}
+
+export function FormRegisterPatrimony({ userId }: FormRegisterProps) {
     const {
         register,
         handleSubmit,
         formState: { errors },
         trigger,
         watch,
-        setValue } = useForm<RegisterSchema>({
-            resolver: zodResolver(registerSchema)
-        });
+        setValue,
+        reset
+    } = useForm<RegisterSchema>({
+        resolver: zodResolver(registerSchema)
+    });
+
+    const [loading, setLoading] = useState(false);
 
     const registrationDate = watch('registrationDate', new Date());
 
@@ -71,9 +80,39 @@ export function FormRegisterPatrimony() {
 
     async function handleRegister(data: RegisterSchema) {
         try {
-            console.log(data);
+            setLoading(true);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/patrimonies`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId,
+                    ...data
+                })
+            });
+
+            if (!response.ok) {
+                toast('Erro ao cadastrar patrimônio', {
+                    action: {
+                        label: "Fechar",
+                        onClick: () => toast.dismiss()
+                    }
+                });
+            }
+
+            toast('Patrimônio cadastrado com sucesso', {
+                action: {
+                    label: "Fechar",
+                    onClick: () => toast.dismiss()
+                }
+            });
+
+            reset();
         } catch (error) {
-            console.log(error);
+            toast(`${error}`);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -81,6 +120,11 @@ export function FormRegisterPatrimony() {
         e.target.value = e.target.value.replace(/\D/g, '');
         trigger(e.target.name as keyof RegisterSchema);
     }
+
+    function handleInputUpperCase(e: any) {
+        e.target.value = e.target.value.toUpperCase()
+    }
+
 
     function handleDateChange(date: Date) {
         setValue('registrationDate', date, { shouldValidate: true });
@@ -93,10 +137,13 @@ export function FormRegisterPatrimony() {
             className="max-w-[60rem] flex flex-col space-y-6 justify-center bg-slate-200 rounded-md p-10"
         >
             <div className="grid grid-cols-3">
-                <DatePicker
-                    date={registrationDate}
-                    onDateChange={handleDateChange}
-                />
+                <div>
+                    <span className="text-xs">Data de cadastro</span>
+                    <DatePicker
+                        date={registrationDate}
+                        onDateChange={handleDateChange}
+                    />
+                </div>
             </div>
             <div className='h-3'>
                 {errors.registrationDate && (
@@ -126,7 +173,11 @@ export function FormRegisterPatrimony() {
                 <Input
                     className='relative border-blue-950'
                     placeholder='Descrição'
-                    {...register('description')}
+                    {...register('description', {
+                        onChange: (e) => {
+                            handleInputUpperCase(e)
+                        }
+                    })}
                 />
                 {errors.description && (
                     <span className="absolute text-xs text-red-700">
@@ -137,7 +188,7 @@ export function FormRegisterPatrimony() {
 
             <div>
                 <Textarea
-                    className='border-blue-950'
+                    className="border-blue-950"
                     placeholder="Digite em mais detalhes sua descrição"
                     {...register('expandedDescription')}
                 />
@@ -146,6 +197,7 @@ export function FormRegisterPatrimony() {
                 <Input
                     className='w-60 relative border-blue-950'
                     placeholder='R$ 0,00'
+                    maxLength={20}
                     {...register('price', {
                         onChange: (e) => {
                             const formattedValue = handleSetPrice(e.target.value);
@@ -160,10 +212,20 @@ export function FormRegisterPatrimony() {
                 )}
             </div>
             <div className='mt-8'>
-                <Button type='submit'>
-                    Cadastrar
+                <Button
+                    disabled={loading}
+                    type='submit'
+                >
+                    {
+                        loading ? (
+                            <span>Cadastrando...</span>
+                        ) : (
+                            <span>Cadastrar</span>
+                        )
+                    }
                 </Button>
+
             </div>
-        </form>
+        </form >
     )
 }

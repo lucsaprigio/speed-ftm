@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { env } from "@/env";
 import { DatabaseOptions } from "./DatabaseOptions";
 import firebird from 'node-firebird';
+import { FirebirdError } from "@/AppError/FirebirdError";
 
 class FirebirdService {
     private options: DatabaseOptions;
@@ -15,12 +17,12 @@ class FirebirdService {
         }
     }
 
-    async executeTransaction(ssql: string, params: []): Promise<[]> {
+    async executeTransaction(ssql: string, params: any[]): Promise<[]> {
         return new Promise<[]>((resolve, reject) => {
             try {
                 firebird.attach(this.options, (err, db) => {
                     if (err) {
-                        return reject(err);
+                        return reject(new FirebirdError(err, 500, err.gdscode));
                     };
 
                     db.transaction(firebird.ISOLATION_READ_COMMITTED, async (err, transaction) => {
@@ -33,7 +35,7 @@ class FirebirdService {
                             if (err) {
                                 transaction.rollback(() => {
                                     db.detach();
-                                    return reject(err);
+                                    return reject(new FirebirdError(err, 500, err.gdscode));
                                 });
                             } else {
                                 transaction.commit(() => {
@@ -50,16 +52,16 @@ class FirebirdService {
         })
     }
 
-    async executeQuery(query: string, params: []): Promise<[]> {
+    async executeQuery(query: string, params: any[]): Promise<[]> {
         return new Promise<[]>((resolve, reject) => {
             firebird.attachOrCreate(this.options, (err, db) => {
                 if (err) {
-                    return reject(err)
+                    return reject(new FirebirdError(err, 500, err.gdscode))
                 }
 
                 db.query(query, params, (err, result) => {
                     if (err) {
-                        return reject(err)
+                        return reject(new FirebirdError(err, 500, err.gdscode))
                     }
 
                     return resolve(result as [])
