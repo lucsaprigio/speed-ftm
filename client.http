@@ -1,0 +1,25 @@
+# @name authenticate
+
+@baseUrl = http://localhost:3000/api/v1
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+    "username": "Lucas",
+    "password": "123456"
+}
+
+# @name create_patrimony
+POST {{baseUrl}}/patrimonies
+Content-Type: application/json
+
+{
+         "description": "Teste",
+            "price": 1000.00,
+            "expandedDescription":"Descrição Expandida",
+            "registration": "123456",
+            "registrationDate": "",
+            "sector": 1,
+            "unit": 1,
+            "userId: 1"
+}

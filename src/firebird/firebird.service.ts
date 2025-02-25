@@ -8,7 +8,7 @@ class FirebirdService {
     constructor() {
         this.options = {
             host: env.DB_HOST,
-            port: env.DB_PORT,
+            port: parseInt(env.DB_PORT),
             database: env.DB_DATABASE,
             user: env.DB_USER,
             password: env.DB_PASSWORD
@@ -70,4 +70,4 @@ class FirebirdService {
 
 }
 
-export default FirebirdService;
+export { FirebirdService };

@@ -47,10 +47,9 @@ export const nextAuthOptions: AuthOptions = {
         async session({ session, token }: { session: any, token: any }) {
             if (token.user) {
                 session.user = {
-                    CNPJ_MATRIZ: token.user.CNPJ_MATRIZ,
-                    CNPJ_CLIENTE: token.user.CNPJ_CLIENTE,
-                    NOME_CLIENTE: token.user.NOME_CLIENTE,
-                    EMAIL_CLIENTE: token.user.EMAIL_CLIENTE
+                    CD_USUARIO: token.user.CD_USUARIO,
+                    NOME_USUARIO: token.user.NOME_USUARIO,
+                    SENHA: token.user.SENHA_USUARIO,
                 };
             }
             return session;

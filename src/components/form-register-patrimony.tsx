@@ -10,7 +10,6 @@ import { ReactNode } from 'react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 
-
 const registrationValidation = new RegExp(
     /^\d+$/
 );
@@ -35,10 +34,13 @@ const registerSchema = z.object({
     registrationDate: z.date().refine((date) => date <= new Date(), {
         message: 'A data não pode ser no futuro'
     }),
-    expandedDescription: z.string() // DESCRICAO_EXPANDIDA
+    expandedDescription: z.string(), // DESCRICAO_EXPANDIDA
+    sector: z.number(),
+    userId: z.number(),
+    unit: z.number()
 });
 
-type RegisterSchema = z.infer<typeof registerSchema>
+export type RegisterSchema = z.infer<typeof registerSchema>
 
 export function FormRegisterPatrimony() {
     const {
