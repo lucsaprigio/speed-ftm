@@ -1,11 +1,22 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+interface FirebirdErrorOptions {
+    message: string;
+    code?: number;
+    firebirdCode?: number;
+    originalError?: any;
+}
+
+
 export class FirebirdError extends Error {
     public statusCode: number;
     public firebirdCode: number;
+    originalError?: object;
 
-    constructor(message: string, statusCode: number, firebirdCode: number) {
-        super(message);
+    constructor(options: FirebirdErrorOptions, statusCode: number, firebirdCode: number) {
+        super(options.message);
         this.statusCode = statusCode;
         this.firebirdCode = firebirdCode;
-        this.name = 'FirebirdError';
+        this.originalError = options.originalError;
+        this.message = options.message;
     }
 }

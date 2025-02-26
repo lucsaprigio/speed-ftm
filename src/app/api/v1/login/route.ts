@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     } catch (error) {
         console.log(error)
         if (error instanceof FirebirdError) {
-            return Response.json({ error: error.message }, { status: 500 });
+            return Response.json({ error: { ...error, message: error.message } }, { status: 500 });
         }
         return Response.json({ error: "An unexpected error occurred" }, { status: 500 });
     }

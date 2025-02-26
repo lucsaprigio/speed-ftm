@@ -10,7 +10,7 @@ export default async function PrivateLayout({ children }: { children: ReactNode 
     const session = await getServerSession(nextAuthOptions);
 
     if (!session) {
-        redirect('/signin')
+        redirect('/')
     }
 
     return (

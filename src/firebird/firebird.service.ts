@@ -22,7 +22,7 @@ class FirebirdService {
             try {
                 firebird.attach(this.options, (err, db) => {
                     if (err) {
-                        return reject(new FirebirdError(err, 500, err.gdscode));
+                        return reject(new FirebirdError({ message: err.message, originalError: err.error }, 500, err.gdscode));
                     };
 
                     db.transaction(firebird.ISOLATION_READ_COMMITTED, async (err, transaction) => {
@@ -35,7 +35,7 @@ class FirebirdService {
                             if (err) {
                                 transaction.rollback(() => {
                                     db.detach();
-                                    return reject(new FirebirdError(err, 500, err.gdscode));
+                                    return reject(new FirebirdError({ message: err.message, originalError: err.error }, 500, err.gdscode));
                                 });
                             } else {
                                 transaction.commit(() => {
@@ -56,12 +56,13 @@ class FirebirdService {
         return new Promise<[]>((resolve, reject) => {
             firebird.attachOrCreate(this.options, (err, db) => {
                 if (err) {
-                    return reject(new FirebirdError(err, 500, err.gdscode))
+                    console.log(err)
+                    return reject(new FirebirdError({ message: err.message, originalError: err.error }, 500, err.gdscode))
                 }
 
                 db.query(query, params, (err, result) => {
                     if (err) {
-                        return reject(new FirebirdError(err, 500, err.gdscode))
+                        return reject(new FirebirdError({ message: err.message, originalError: err.error }, 500, err.gdscode))
                     }
 
                     return resolve(result as [])
