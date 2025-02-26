@@ -1,6 +1,6 @@
 'use client'
 
-import { Home, CirclePlus, LogOut } from "lucide-react"
+import { Home, CirclePlus, LogOut, User } from "lucide-react"
 
 import {
     Sidebar,
@@ -20,7 +20,6 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
 
 import Link from "next/link";
@@ -28,6 +27,7 @@ import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button";
 import { DialogDescription } from "@radix-ui/react-dialog";
+import { useState } from "react";
 
 type SidebarProps = {
     userId: number | undefined;
@@ -49,6 +49,7 @@ const items = [
 
 export function AppSidebar({ userId, username }: SidebarProps) {
     const router = useRouter();
+    const [open, setOpen] = useState(false);
 
     async function logout() {
         await signOut({
@@ -60,17 +61,18 @@ export function AppSidebar({ userId, username }: SidebarProps) {
 
     return (
         <>
-            {/*             <Dialog open={dialog}>
-                <DialogContent>
+            <Dialog open={open} onOpenChange={() => setOpen(!open)}>
+                <DialogContent className="flex flex-col items-center sm:max-w-[425px]">
                     <DialogHeader>
                         <DialogTitle>Tem certeza que quer sair?</DialogTitle>
+                    </DialogHeader>
+                    <DialogDescription>
                         <Button onClick={logout}>
                             Sim
                         </Button>
-                    </DialogHeader>
+                    </DialogDescription>
                 </DialogContent>
-            </Dialog> */}
-
+            </Dialog>
             <Sidebar variant="sidebar" collapsible="icon">
                 <SidebarHeader>
                     <SidebarContent>
@@ -78,7 +80,8 @@ export function AppSidebar({ userId, username }: SidebarProps) {
                             <SidebarMenuItem key={"speed"}>
                                 <SidebarMenuButton asChild>
                                     <div>
-                                        <strong className="text-lg font-semibold text-slate-950">
+                                        <User />
+                                        <strong className="text-lg font-semibold text-gray-50">
                                             {userId && userId} - {username && username}
                                         </strong>
                                     </div>
@@ -107,37 +110,24 @@ export function AppSidebar({ userId, username }: SidebarProps) {
                     </SidebarGroup>
                 </SidebarContent>
                 <SidebarFooter>
-                    <SidebarMenu>
-                        <SidebarMenuItem key={"user"}>
-                            <SidebarMenuButton asChild>
-                                {/*                                 <button
-                                    className="flex items-center justify-center w-full h-12 text-sm font-semibold text-slate-950 bg-slate-300 hover:bg-slate-200"
-                                    onClick={() => setDialog(true)}
-                                >
-                                    <LogOut />
-                                    Sair
-                                </button> */}
-                                <Dialog>
-                                    <DialogTrigger className="flex gap-3 bg-slate-950 text-gray-50 p-3 rounded-md w-full hover:brightness-75 transition-all">
-                                        <LogOut />
-                                        <span>
-                                            Sair
-                                        </span>
-                                    </DialogTrigger>
-                                    <DialogContent className="flex flex-col items-center sm:max-w-[425px]">
-                                        <DialogHeader>
-                                            <DialogTitle>Tem certeza que quer sair?</DialogTitle>
-                                        </DialogHeader>
-                                        <DialogDescription>
-                                            <Button onClick={logout}>
-                                                Sim
-                                            </Button>
-                                        </DialogDescription>
-                                    </DialogContent>
-                                </Dialog>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Ações</SidebarGroupLabel>
+                        <SidebarGroupContent>
+                            <SidebarMenu>
+                                <SidebarMenuItem key={"logout"}>
+                                    <SidebarMenuButton asChild>
+                                        <button onClick={() => setOpen(!open)}>
+                                            <LogOut />
+                                            <span>
+                                                Sair
+                                            </span>
+                                        </button>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </SidebarGroupContent>
+                    </SidebarGroup>
+
                 </SidebarFooter>
             </Sidebar>
         </>
