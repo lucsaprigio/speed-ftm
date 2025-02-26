@@ -27,7 +27,11 @@ export const nextAuthOptions: AuthOptions = {
                         username: credentials?.username,
                         password: credentials?.password
                     })
-                })
+                });
+
+                if (response.status === 500) {
+                    return null
+                }
 
                 if (!response.ok) {
                     return null
@@ -36,6 +40,7 @@ export const nextAuthOptions: AuthOptions = {
                 const user = await response.json();
 
                 return user;
+
             },
         })
     ],

@@ -39,6 +39,16 @@ export function FormAuth() {
         redirect: false
       });
 
+      console.log(result);
+      if (result?.status === 500) {
+        return toast('Internal Server Error', {
+          action: {
+            label: "Fechar",
+            onClick: () => toast.dismiss()
+          }
+        });
+      }
+
       if (result?.error) {
         return toast('Usuário ou senha incorretas.', {
           action: {
